@@ -1,0 +1,31 @@
+
+
+\section{Data Modification}\label{Sec:Modification}
+\\
+In order to get a clear overview of the data, and only use the fundamental variables needed for the analysis, we had to modificate the raw dataset in several ways. \\
+
+Firstly, because we only wanted to work with the fundamental variables of a property,  we had to delete the variables which were not needed for the analysis. We only kept the variables that are relevant for our analysis, such as the size of the house, number of bedrooms, stories etc. Some of the variables that we removed from the dataset were not observed correctly (a lot of NA values), or were observed correctly, but most of the values were the same. To show the first problem on an example, there were several observations where the number of rooms, or the size of the real estate was zero.  A good example of the second case is the seasonality of the house (which means it can be only used in a specific time frame, let\'s say summer). Of the 6019 observations only a 100 houses were seasonal,which is less than 2\% of the observations. Apart from these problems, we remove the observations where the number of rooms were bigger than 30.\\
+We also noticed that the column rented had only 72 entries, and all the other rows were left empty, which meant that we could not have properly worked with this variable either. \\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+housing$Rented = NULL
+housing$`Foreclosed/Bank-Owned/REO`= NULL
+housing$Easements = NULL
+\end{lstlisting}
+
+
+We also deleted observations where the Sqftotfn value was smaller than 1, and where the total number of rooms was bigger than 30. This was necessary, because for further analysis, we had to create new variables, and it would have caused difficulties leaving these values in the dataset. \href{https://github.com/arminecseri/SPL-SOSE-17/blob/master/deletingvariables.R}{\includegraphics[width= 5mm, height=5mm]{qletlogo.pdf}}\\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+'Delete wrong rows' #Listwise
+housing = housing[!(housing$Rooms>30),]
+housing = housing[!(housing$SqFtTotFn < 1),]
+\end{lstlisting}
+
+We also renamed the variables that we kept for our work according to the github styleguide, in order to make their usage easier in the code. Instead of writing "Water Body Type" all the time, we used "WBT", for istance, which is clearly easier). \href{https://github.com/arminecseri/SPL-SOSE-17/blob/master/renameingvariables.R}{\includegraphics[width= 5mm, height=5mm]{qletlogo.pdf}}\\
+
+
+Now that we described the dataset and the modifications made to it, we continue with the statistical analysis parts, both descriptive and exploratory. We start with the descriptive part, so we get an overview of the real estate prices in the cities and the states of the dataset.\\
+
+
+

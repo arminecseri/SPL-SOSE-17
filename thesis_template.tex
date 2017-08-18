@@ -1,0 +1,239 @@
+
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{amsmath,amssymb,amsfonts,amsthm}    % Typical maths resource packages
+\usepackage{graphicx}                           % Packages to allow inclusion of graphics
+\usepackage{hyperref}                    
+       % For creating hyperlinks in cross references
+\usepackage[authoryear]{natbib}                 % literature reference style
+\usepackage[bf]{caption2}
+
+\usepackage[margin=2.5cm,includefoot]{geometry}
+
+\setlength{\parindent}{0pt} %keine Zeilen Einr"uckung
+
+%for table
+\usepackage{adjustbox}
+\usepackage{graphicx} 
+\usepackage{wrapfig}
+\usepackage[flushleft]{threeparttable}
+\usepackage{float}
+% For code listing
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{hellgelb}{rgb}{1,1,0.7}
+\usepackage{listings}
+\lstset{language=R
+	,basicstyle=\footnotesize
+	,numbers=left
+%	,frame = single
+	,stepnumber=1
+	,numbersep=5pt
+	,numberstyle = \tiny\color{mygray}
+	,showstringspaces=false
+	,stringstyle = \color{mymauve}
+	,tabsize=2
+	,breaklines=true
+	,breakatwhitespace=false
+	,keywordstyle=\color{blue}
+	,escapeinside={\%*}{*)}
+	,morekeywords={*,...}
+	,rulecolor=\color{black}
+	,commentstyle=\color{mygreen}
+	,keepspaces = true
+%	,backgroundcolor=\color{hellgelb}
+}
+
+%\renewcommand\thesection{\Roman{section}}
+%\renewcommand\thesubsection{\Alph{subsection}}
+
+
+
+% -------------------------------
+% --- some layout definitions ---
+% -------------------------------
+
+% define topline
+\usepackage[automark]{scrpage2}
+\pagestyle{scrheadings}
+\automark{section}
+\clearscrheadings
+\ohead{\headmark}
+
+
+% define citation style
+\bibliographystyle{ecta}
+
+% define page size, margin size
+%\setlength{\headheight}{1.1\baselineskip}
+%\voffset=-2cm
+%\hoffset=-3cm
+%\textheight24cm
+%\textwidth15.5cm
+%\topmargin1cm
+%\oddsidemargin3cm
+%\evensidemargin3cm
+
+% define line line spacing = 1.5
+\renewcommand{\baselinestretch}{1.5}
+
+% define second level for `itemizing'
+\renewcommand{\labelitemii}{-}
+
+
+% Header and Footer with fancy package
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}  % cancels section on top of the line
+\fancyfoot{}
+\fancyfoot[R]{ \thepage\ }
+\renewcommand{\footrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+
+
+% --------------------------------------
+% --------------------------------------
+% --------------------------------------
+% --- the structure the tex document ---
+% ---  (this our recommendation) -------
+% frontmatter:
+%   - titlepage (mandatory),
+%   - acknowledgement,
+%   - abstract,
+%   - table of contents (mandatory),
+%   - list of abbreviations (not mandatory),
+%   - list of figures (not mandatory),
+%   - list of tables  (not mandatory) .
+%
+% body of the thesis (the structure of the thesis body is not mandatory, but the list of literature is mandatory):
+%   - introduction,
+%   - data decription,
+%   - dataset modification,
+%   - descriptive analysis,
+%   - exploratory,
+%   - results
+%   - literature (mandatory),
+%   - appendix (figures, tables).
+%
+% last page:
+%   - declaration of authorship (mandatory).
+% --------------------------------------
+% --------------------------------------
+% --------------------------------------
+
+\begin{document}
+
+% -------------------------------
+% --- frontmatter: Title page ---
+% -------------------------------
+
+\thispagestyle{empty}
+\input{titlepage}
+
+ \pagenumbering{roman}
+
+% ------------------------------------
+% --- frontmatter: Acknowledgement ---
+% ------------------------------------
+%\newpage
+%\pagestyle{plain}
+%\pagenumbering{roman}   % define page number in roman style
+%\setcounter{page}{1}    % start page numbering
+%\input{acknowledgement}
+
+
+
+% -----------------------------
+% --- frontmatter: Abstract ---
+% -----------------------------
+%\newpage
+%\input{abstract}
+
+
+
+% -----------------------------
+% --- frontmatter: Contents ---
+% -----------------------------
+\newpage
+\tableofcontents
+\clearpage
+
+
+% ----------------------------------------------------
+% --- frontmatter: List of Figures (not mandatory) ---
+% ----------------------------------------------------
+\newpage
+\addcontentsline{toc}{section}{List of Abbreviations}
+\ohead[]{LIST OF ABBREVIATIONS}
+\input{abbreviations}
+
+
+
+% ----------------------------------------------------
+% --- frontmatter: List of Figures (not mandatory) ---
+% ----------------------------------------------------
+\newpage
+\addcontentsline{toc}{section}{List of Figures}
+\ohead[]{\rightmark}
+\listoffigures
+
+
+
+% ---------------------------------------------------
+% --- frontmatter: List of Tables (not mandatory) ---
+% ---------------------------------------------------
+%\newpage
+%\addcontentsline{toc}{section}{List of Tables}
+%\listoftables
+
+
+
+% -------------------------------
+% --- main body of the thesis ---
+% -------------------------------
+\newpage
+\pagestyle{plain}
+\setcounter{page}{1}    % start page numbering anew
+\pagenumbering{arabic}  % page numbers in arabic style
+
+
+\input{Introduction}
+\input{description}
+\input{modification}
+\input{descriptive}
+\input{exploratory}
+\input{results}
+
+\newpage
+
+% ----------------
+% --- appendix ---
+% ----------------
+\appendix
+% literature
+\addcontentsline{toc}{section}{References}
+\bibliography{SPLBIB}
+
+% code (not mandatory)
+\newpage
+\input{app_code}
+
+% figures (not mandatory)
+%\newpage
+%\input{app_figures}
+
+
+
+
+% --------------------------------------------
+% --- last page: Declaration of Authorship ---
+% --------------------------------------------
+
+\newpage
+\thispagestyle{empty}
+\input{authorship}
+
+
+\end{document}

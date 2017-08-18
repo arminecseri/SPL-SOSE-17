@@ -1,0 +1,238 @@
+
+\section{Exploratory Analysis}\label{Sec:exploratory}
+
+In order to prepare the data for the following regression models, we are now carrying out quantile-quantile plotting and correlation analysis. We want to answer our research questions by splitting the dataset into a test set and train set and establish several linear regression models later on. 
+
+
+\subsection{Quantile-Quantile Plots}
+
+The Quantile-Quantile-Plot allows us to check whether a set of observations follows a specific distribution. We want to examine if our variables are normally distributed to find out if we can integrate them in the regression model and to know how they have to be adjusted in case of another underlying distribution. Just like \citeauthor{merellking}(2016) we plot the expected vs. actual values for the given independent variable. \\ %(Merell, G., 2016) 
+If a set of observation is normally distributed it will result approximately in a straight line in a normal quantile-quantile plot. The observed values are plotted against the appropriate expected values of the standard normal distribution. The qq plots of some numeric variables are plotted as seen below. As seen in the qq plots, price, SqFtTotFn and Exists, which will be introduced in the section below, do not have a normal distribution and therefore need further adjustment. \\
+
+ \begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+"QQNorm of price, log-transformation and another QQNorm of LogPrice"
+qqnorm(housing$Price, xlab="Price", col = "blue")
+housing$logPrice = log(housing$Price)
+qqnorm(housing$logPrice, xlab="Log Price", col = "blue")
+\end{lstlisting}
+
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.8cm, height =7cm]{images/qqprice.png}
+	\includegraphics[width=7.8cm, height = 7cm]{images/qqlogprice.png}
+	\caption{Normal QQ-Plots of price and logprice}
+%\end{flushleft}
+\label{}
+\end{figure}
+
+
+The qq-plot on variable price indicates right-skewness of its distribution, therefore we assume a log-normal distribution. As an essential part of further analysis we undertake it a log transformation to make the variable conform to normality.\\
+A second qq-plot on logprice proves the successful transformation.\\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+'QQNorm of SqFTotFn and its log-transformation logSqft'
+qqnorm(housing$SqFtTotFn, xlab="SqFtTotFn", col = "blue") 
+housing$logSqft = log(1+housing$SqFtTotFn)
+qqnorm(housing$logSqft, xlab="Log SqFt", col = "blue")
+\end{lstlisting}
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.8cm, height =7cm]{images/qqsqft.png}
+	\includegraphics[width=7.8cm, height = 7cm]{images/qqlogsqft.png}
+	\caption{Normal QQ-Plots of sqft and logsqft}
+%\end{flushleft}
+\label{}
+\end{figure}
+
+Looking at the qq-plot of SqFtTotFn we can notice the same effect of right-skweness of its distributions as the variable price does. We also normalize the variable SqFtTotFn by logarithm it. The successful transformation is shown in the qq-plot on logsqft. \\
+
+The variable year built can not be integrated into the regression model and had to be adjusted as well. In order to receive undistorted results we worked with the house's age instead, which we received by subtracting the age built of the variable date closed. We called that new variable Exists.
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+'create variable exists'
+housing$Exists = housing$YearClosed-housing$Built
+qqnorm(housing$Exists, xlab="Exists", col = "blue")
+
+'create log exists'
+housing$logExists = log(1+housing$Exists)
+qqnorm(housing$logExists, xlab="Log Exists", col = "blue")
+\end{lstlisting}
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.8cm, height =7cm]{images/qqexists.png}
+	\includegraphics[width=7.8cm, height = 7cm]{images/qqlogexists.png}
+	\caption{Normal QQ-Plots of exists and logexists}
+%\end{flushleft}
+\label{}
+\end{figure}
+
+As seen in the qq-plot of Exists, this Variable had to be normalized for further analysis as well. The variable we work with in our following regression is then called logexists. 1 has to be added to the Variable Exists before logarithm it in order to avoid infinitve outcome of undefined logarithm if Exists equals 0. \\
+
+
+
+
+\subsection{Correlations}
+
+To achieve the most precise model the variables with the biggest influence on the price have to be determined. With correlations we want to measure the strengths of association between two variables and the direction of the relationship and take the results as base to select the variables for the regression models. \\
+We use the Pearson Coefficient to measure the degree of relationship of linearly related variables and to find out statistically significant relationships between numerical variables in our data set (\cite{correlation}). \\  %(Statistics Solutions, 2017)\\
+First we create a subset of numerical variables of our dataset and subsequently show a matrix that shows all the correlation between each of them. Missing values are treated by listwise deletion in case they occur. Certainly the values are in a range of -1 from perfect negative correlation to +1 perfect positive correlation. \\
+
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+sub_num = housing[sapply(housing,is.numeric)]
+
+sub_num$Built = NULL
+sub_num$Price = NULL
+[...]
+sub_num = sub_num[c(8,10,9,2,3,5,7,1,4)]
+H = cor(sub_num, use = "complete.obs", method = "pearson")
+print(H) # CORRELATION VALUES #
+\end{lstlisting}
+
+Focus has to be on the correlation of the other variables with the normalized price as the goal is to set up a model that explains the housing prices in New Hampshire and Vermont. \\
+
+A high correlation of logprize is recognizable with sqFtTotfn, the number of bathrooms, followed by the total number of rooms, bedrooms and the garage capacity. \\
+A slightly negative correlation is visible with the house age (existance).\\
+
+In order to visualize the correlations, we create a strictly numerical subset of the dataset as mentioned before that we use. Furthermore, we installed the package \"corrplot\", which is graphical display of a correlation matrix. \\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+library("corrplot")
+corrplot(H, method="circle") # CORRELATION PLOT #
+\end{lstlisting}
+
+
+\begin{wrapfigure}{l}{0.5\textwidth}
+  \begin{center}
+	\includegraphics[width=8cm, height = 7cm]{images/correlationplot.png}
+  \end{center}
+  \caption{Correlation matrix}
+\end{wrapfigure}
+
+
+The correlation matrix with the package \"corrplot\" visualizes the correlation between the numerical variables in the dataset. As we can see, the correlations visualized in the matrix are consistent with our calculations. \\
+
+
+\subsection{Regression Method}
+
+In the course of building up a regression model we will start with a linear approach followed by a multivariate regression. Using those methods we will learn more about the relationship between the independent variables such as logsqft, Baths or Bedrooms and the dependent variable logprice. The aim of establishing several regression models is to minimize the distance between the fitted line and all of the data points, so called the error terms. The technique of OLS (ordinary least squares) used minimizes the sum of the squared residuals (\cite{regression}). \\ %(Statistics Solution, 2017) 
+
+We first revisit the multiple linear regression model for the dependent variable logsqft and then move on to the case where more than one response is measured on each sample unit. We also test each regression model on heteroskedasticity. The residuals of each regression models should have a constant spread across all fitted values. To prove, whether there is heteroskedasticity or not, we use the most popular test of heteroskedasticity called the Breusch-Pagan-Test. It measures how errors increases across the explanatory variable of logprice. A small chi-square value along with a small p-Value indicates that the null hypothesis of homoskedasticity is true. \\
+
+
+\subsubsection{Simple Linear Regression}
+
+
+First of all, we build a simple linear regression model. Model1 shows the relationship between the scalar dependent variable logprice and the independent variable logsqft. Both are already normalized as you can see in section 5.1 . We choose to do the simple linear regression model with logprice and logsqft because of their correlation is the highest with a value of 0.58. 
+
+
+\begin{align}
+logprice = \beta * logsqft + \epsilon 
+\end{align}
+
+
+
+ \begin{figure}[ht]
+\begin{flushleft}
+\centering
+	\includegraphics[width=8cm, height = 7cm]{images/regmodel1.png}
+	\caption{Relationship logprice \& logsqft}
+\end{flushleft}
+\label{}
+\end{figure}
+
+
+
+Plot logprice and logsqft in a simple grafik, which already demonstrates the positive relationship between SqFt and Price. The estimated coefficients of logsqft states the positiv interrelation. When the Real Estate increases its SqFt by 1\%, the house price consequently increases by more 1,04\%.  \\
+
+As visible in the Model1-Output the independent variable is significant at the 0.05 level. 
+R-Squared is 0.459 and indicates the proportion of the variability in the observed responses that can be attributed to changes in the predictor variables. 
+Subsequently we conduct a test for heteroskedasticity for the simple linear regression model. It tests whether the variance of the errors from the regression model is dependent on the values of the independent variable logsqft. According to the Breusch-Pagan-Test there is no heteroskedasticity present, since the p-Value of the Test is 0.4. \\
+
+
+ \begin{figure}[ht]
+\begin{flushleft}
+\centering
+	\includegraphics[width=8cm, height = 7cm]{images/model1a.png}
+	\caption{Residuals vs Fitted}
+\end{flushleft}
+\label{}
+\end{figure}
+
+As seen in the Residuals vs. Fitted - Plot, the variability of the residuals, which are the part of the dependent variable that Model 1 could not explain, do not change over the range of the dependent variable logprice. The residuals are calculated by subtracting the predicted value from the actual value of the dependent variable. \\
+
+
+\subsubsection{Multivariate Regression of train dataset}
+
+To assess the quality of the predictive models, we randomly split up the dataset into a train and a test set in a 75\% to 25\% ratio.
+The train set serves to build the model, while the test set validates the model. After applying the same model to the test set we can either confirm or prove wrong the results given by the train set.
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+'Split dataset in test und trainset '
+smp_size <- floor(0.75*nrow(housing))
+set.seed(123)
+train_ind <- sample(seq_len(nrow(housing)), size = smp_size)
+train <- housing[train_ind, ]
+test <- housing[-train_ind, ]
+\end{lstlisting}
+
+Model 2 contains all variables, that have a high correlation with the dependent variable logprice like logsqft, Baths and Bedrooms. Because of the high correlation of Rooms with Bedrooms and Baths, we did not include it in our model formation to avoid multicollinearity. Is there a high intercorrelations or interassociations among the independent variables, the stasticial inferences made about the data may be not longer reliable.
+
+\begin{align}
+logprice = \beta_{1} * sqft +  \beta_{2}* baths + \beta_{3}* bedrooms + \epsilon 
+\end{align}
+
+There is a total of 3 coefficients estimated. The R-squared value is 0.481.  \\
+All Variables except bedrooms are significant at a 0.05 level since the P-Value of each coefficients is below it. According to the Breusch - Pagan - Test of Model2, there is Heteroskedasticity present. We now will try to improve the Model in order to get a Model with higher R-Squared Value and Homoskedasticity. 
+\\
+
+
+\subsubsection{Multivariate Robust Regression of Trainset}
+
+Model 3 is a robust regression with more variables than Model 2. We picked the robust regression because as shown in the descriptive analysis the data used is contaminated with outliers. This methods lowers the influence of those outlying cases and will provide a better fit to the majority of the data as seen in the following. Outliers pull the least squares fit too far in their direction because they weight much more than they should actually do. Robust standard errors can also remedy heteroskedasticity (\cite{robust}). % (Bruin, 2011)
+
+
+
+\begin{align}
+logprice = \beta_{1} * sqft +  \beta_{2}* baths + \beta_{3}* bedrooms + \beta_{4}* logexists + \beta_{5}* Garage + \beta_{6}* GarCap + \epsilon 
+\end{align}
+
+Additionally we add the variable logexists, GarCap and Garage as dummy variables to the multivariate regression model. We use the normalized variables logsqft and logexists as established in 5.1. 
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+library(robustbase)
+Model3=lmrob(logPrice ~ logSqft + Baths + Bedrooms + logExists + Garage + GarCap, data=train)
+summary(Model3)
+bptest(Model3)
+\end{lstlisting}
+
+Model 3 uses \"lmrob\" from the \"robustbase\"-package. There are 7 coefficients and the R-Squared is 0.562, significantly higher than it was in Model 2. 
+
+Refering to Model 3, an extra Baths increases the Price of a Real Estate by 13.36\%. Futhermore, a house with a garage increases the price by 1.97\% compared to a house without any garage. According to the Breusch-Pagan-Test the variables of Model 3 are still heteroskedastic. The P-Value is significantly low and the Nullhypothesis of Homoskedasticity must be rejected. 
+
+\subsubsection{Model validation with test dataset}
+
+In the following we now verify our Model 3 built by running it with the test dataset. This dataset contains 25\% of all observations. In conclusion the relationships identified in the training data hold in general. 
+\\
+
+The predicted values for logprice are not too far of as the actual values for logprice in the test dataset as seen in the table below. \\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+'Testing the data - predict'
+Y_predict <- predict(Model3, newdate=test)
+head(Y_predict)
+head(test$logPrice)
+\end{lstlisting}
+
+Since a robust multivariate regression and adding more variables to the model does not get rid of heteroskedasticity, we have to recalculate the standard errors. In Model 3 the standard errors were estimated as too big and have to be adjusted. \\
+The only method, that did work to reach a higher R-Squared as the one of Model 3, is to run a multivariate regression with all variables contained in our dataset. Adding the independent variables like WFL, WBT or Rooms to the regression model highers the R-Squared Value and explains the logprice therefore better. Nevertheless, adding more variables to the model  effects in a higher R-Squared, but is overparameterization and causes multicollinearity.  \\
+
+
+After preparing the dataset for the regression by using quantile-quantile plotting and analysing the correlation between each variable, Model 3 is the most specific regression model to explain the relationship between the variables logsqft, baths, bedrooms, garage, garage capacity  and logprice. By splitting up the dataset into a train and test set and comparing the output from both datasets with each other certifies the quality of Model 3. In the following chapter we will answer the research question by referring to the descriptive and exploratory analysis implemented. \\
+

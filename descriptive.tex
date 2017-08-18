@@ -1,0 +1,124 @@
+\section{Descriptive Analysis}\label{Sec:Descriptive}
+
+The dataset consists of 6019 observations that were listed on the real estate platform, where 3173 are located in the state of New Hampshire and 2845 in Vermont state.\\
+
+\subsection{Distribution of the cities and kind of properties}
+Two kinds of properties were observed in this dataset: On the one hand there are 4703 observations of single family houses, which are one unit dwelling structures, has open spaces on all four sides and is not attached to any other structure. On the other hand there are 1316 observations of condominiums, which are buildings or complex of buildings containing a number of individually owned apartments or houses.\\
+
+Figure 1  shows the relative distribution of the cities in the different states. \\
+
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.8cm, height = 7cm]{images/barplotNH.png}
+	\includegraphics[width=7.8cm, height = 7cm]{images/barplotVT.png}
+%  \end{center}
+  \caption{Relative distribution of houses in different cities of NH and VT}
+\end{figure}
+
+
+According to the dataset,  in New Hampshire 27\% of the houses are located in Lebanon, followed by 17\% in Hanover and 16\% in Grantham. In each Sunapee and Enfield 11\% and in Canaan 6\%.
+In the state of Vermont 32\% of the objects are situated in Hartford and 20\% in Ludow. Norwich has 8\% of the houses followed by Weathersfield, West Windsor and Windsor with each 5\%.
+
+
+
+The average house that is listed on the platform, based on the arithmetic means, has 2 stories and 7 rooms. Among them 3 are bedrooms and 2 bathrooms. Its garage has a capacity of one car.\\
+
+The total area measured has a range of 260 to 9535 square feet.\\
+The arithmetic mean of all observations is 1996 (around 185 square meters) square feet.\\
+
+\subsection{Structure of the house prices}
+The focus on our analysis will be on the price structure of the house prices. \\
+
+The 5 number summary shows a minimum price of 10,000\$ and a maximum price of 5375000\$. The arithmetic mean of house price is 300376\$ whereby in New Hampshire the houses are in average more expensive than in Vermont.
+The arithmetic mean in VT it is with 266726\$ lower than the mean price of houses in NH which is 330558\$.
+
+To create the relative distribution function we chose even intervals in steps of 200000\$ up to 1000000\$ and from there to the maximum. The third quantile at 345000\$ indicates that a comparable small part of the houses has prices above that mark.
+
+The relative distribution unveils that 42\% of the houses cost less than 200000\$, 81\% less than 400000\$, 91\% less than 600000  and 95\% less than 800000\$. The price of 98\% of the houses is less than 1000000, in other words only 2\% are bigger than 1000000\$, what is getting visible in the graph of the cumulative distribution function. \\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+ #Relative distribution in 200000 steps 
+u =c(0, 200000, 400000, 600000, 800000, 1000000, +Inf)
+round(table(cut(housing$Price,u, labels=c("<200000$","<400000$", "<600000$", "<800000$","<1000000$", ">1000000"))) /length(data$Price), 3)
+
+#Subset with Prices below 1000000$
+subgroup_price = subset(housing, housing$Price <1000000)
+summary(subgroup_price$Price)
+
+#Graph of cumulative distribution function 
+plot.ecdf(housing$Price, xlab = "price", las=1,
+          main = "cumulative distribution function of prices", col="red") 
+plot.ecdf(subgroup_price$Price, xlab = "price", las=1,
+          main = "cumulative distribution function of price < 1.000.000", col="red") 
+\end{lstlisting}
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.8cm, height = 7cm]{images/cumulative1.png}
+	\includegraphics[width=7.8cm, height = 7cm]{images/cumulative2.png}
+
+  \caption{Cumulative distribution functions of Price}
+\end{figure}
+
+We created a subgroup of the houses cheaper than 1000000\$ to get a closer look to the price structure. Comparing the boxplots of the subgroup and the complete dataset it is getting visible that with an increase in the price the frequency decreases. In the dataset there are only 7 houses over 3 million $,  2 houses over 4 million $ and 1 more expensive than 5 million $. \\
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.8cm, height =9cm]{images/boxplot1.png}
+	\includegraphics[width=7.8cm, height = 9cm]{images/boxplot2.png}
+	\caption{Boxplot of Price}
+%\end{flushleft}
+\label{}
+\end{figure}
+
+
+\subsection{Change of price over time}
+
+ Time as a variable has to be taken into consideration in the analysis of the housing data as well. The data was originated between the beginning of 2012 and mid 2017 and the listed prices refer to those years.The following bar chart shows the number of observations for each Year. From 2012 to 2016 the number of observations for each year rises, but stays evenly proportioned with a share between 15-22\% of the total data. 2017, as the year is still proceeding, only contributes ~5\% of the data. \\
+
+\begin{wrapfigure}{r}{0.6\textwidth}
+  \begin{center}
+	\includegraphics[width=8cm, height = 7cm]{images/objectsperyear.png}
+  \end{center}
+  \caption{Listed objects per Year}
+\end{wrapfigure}
+
+
+
+Questions arise about the price development over the years. Are there any patterns recognizable? We worked with the variable DateClosed, which was the date when the corresponding property was sold. On the basis of the mean price of every year we compared the different years refering to \citeauthor{murilloking} (2016) work about the King County Home Sales.  The results are shown in graph below. \\
+
+\begin{lstlisting}[frame = single,backgroundcolor=\color{hellgelb}]
+housing$YearClosed = format(as.Date(housing$DateCL, format="%d/%m/%Y"),"%Y")
+housing$YearClosed = as.numeric(housing$YearClosed)
+
+table2 = aggregate(housing[, ], list(housing$YearClosed), mean)
+Plot1=plot(table2$Group.1, table2$Price,las=1, type="o", cex=2, pch=20, main="Average Price per Year",xlab="Year Closed", ylab="Mean Price", col="blue", bg="blue")
+grid(nx=NULL, ny=NULL, col="lightgray", lty="solid")
+par(new=TRUE)
+Plot1=plot(table2$Group.1, table2$Price,las=1, type="o", cex=2, pch=20, main="Average Price per Year",xlab="Year Closed", ylab="Mean Price", col="blue", bg="blue")
+\end{lstlisting}
+
+\begin{figure}[ht]
+%\begin{flushleft}
+\centering
+	\includegraphics[width=7.9cm, height =7cm]{images/aveprice.png}
+	\includegraphics[width=7.9cm, height = 7cm]{images/meanpricepersqft.png}
+	\caption{Change of Mean Price and Mean Price per Sqft from 2012 - 2017}
+%\end{flushleft}
+\label{}
+\end{figure}
+
+
+In 2012 the mean price  per sqft is 145\$  and falls to its minimum in 2013. The highests value is 154\$ per sqft in the following year 2014. From 2014 to 2017 the price declines.
+The representativeness for the whole NH and Vermont is questionable, as the results depend on the choice of objects listed on MLS.
+We subsequently calculated the price per square feet to obtain a further number to classificate the objects in our dataset. \\
+
+
+
+
+
+Now that we showed the descriptive analysis of the dataset, we will move on with the exploratory analysis, to understand the relations between the prices and the variables, and to answer our questions displayed in the introduction. \\
